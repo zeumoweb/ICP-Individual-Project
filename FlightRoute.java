@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -89,7 +90,7 @@ class AirPort {
         return this.airline;
     }
 
-    public void setAirLine(String airlineCode){
+    public void setAirLineCode(String airlineCode){
         this.airline = airlineCode;
     }
 
@@ -136,10 +137,10 @@ public class FlightRoute {
             this.routes.put(route.get(2), airport);
         }
         // String airportId = route.get(5) ? route.get(5) != "\\N" : ""; 
-        System.out.println(route.get(4));
+        // System.out.println(route.get(4));
         AirPort destinationAirport = this.airports.get(route.get(4));
         if (destinationAirport != null){
-            destinationAirport.setAirLine(route.get(0));
+            destinationAirport.setAirLineCode(route.get(0));
         }
         airport.add(destinationAirport); // to ask: some airports don't have code, hence -> route.get(index: 4) is null and hence airport.get(null) is null
     }
@@ -176,27 +177,29 @@ public class FlightRoute {
     }
 
     public void logic(){
-        String start = "LondonUnited Kingdom";
-        String end = "YaoundeCameroon";
-        Queue<String> frontier = new LinkedList<>();
+        Node start = new Node("YaoundeCameroon", null, 0);
+        String end = "LondonUnited Kingdom";
+        Queue<Node> frontier = new LinkedList<>();
         HashSet<String> explored =  new HashSet<>();
-        if (start.equals(end)){
+        if (start.cityCode.equals(end)){
             System.out.println("No path");
             return;
         }
         frontier.add(start);
         while (!frontier.isEmpty()) {
-            String current_city = frontier.remove();
-            explored.add(current_city);
-            List<String> connectedCities = this.getConnectedCities(current_city);
+            Node current_city = frontier.remove();
+            explored.add(current_city.cityCode);
+            List<String> connectedCities = this.getConnectedCities(current_city.cityCode);
             for(String city: connectedCities){
-                if (current_city.equals(end)){
+                Node newCity = new Node(city, current_city, current_city.totalFlights + 1);
+                if (city.equals(end)){
                     System.out.println(connectedCities);
                     System.out.println("Found a path and solution");
+                    newCity.getFlightPath();
                     return;
                 }
-                if (!explored.contains(city) && !frontier.contains(city)){
-                    frontier.add(city);
+                if (!explored.contains(city) && !frontier.contains(newCity)){
+                    frontier.add(newCity);
                 }
             }
             
@@ -220,10 +223,25 @@ public class FlightRoute {
             this.cityCode = cityCode;
             this.parent = parent;
             this.totalFlights = totalFlights;
+
         }
 
         public void getFlightPath(){
+            Node curr = this;
+            List<String> path =  new ArrayList<>();
+            while (curr != null){
+                path.add(curr.cityCode);
+                curr = curr.parent;
+            }
+            Collections.reverse(path);
+            System.out.println("Solution path " + path);
 
+        }
+
+        @Override
+        public boolean equals(Object node){
+            final Node other  = (Node) node;
+            return other.cityCode == this.cityCode;
         }
     }
 
