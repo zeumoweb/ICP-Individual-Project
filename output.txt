@@ -1,0 +1,6 @@
+AA From ACC To LHR 0  Stops.
+FR From LHR To RYG 0  Stops.
+Total flights: 2
+Total additional stops: 0
+Total distance: 6275 Km
+Optimality criteria: flights
